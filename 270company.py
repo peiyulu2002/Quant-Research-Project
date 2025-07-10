@@ -1,3 +1,4 @@
+'''
 import pandas as pd
 df = pd.read_csv('./valid_270_tickers.csv')
 print(df['Ticker'].tolist())
@@ -32,4 +33,37 @@ for ticker in tickers:
     except Exception as e:
         print(f"错误：无法下载 {ticker}，原因：{e}")
 
+'''
 
+import pandas as pd
+import os
+
+# Step 1: 加载 Sector 信息
+fund_csv_path = './iShares-Russell-3000-ETF_fund.csv'
+df_fund = pd.read_csv(fund_csv_path)
+
+# 创建 {ticker: sector} 映射字典
+sector_map = dict(zip(df_fund['Ticker'], df_fund['Sector']))
+
+# Step 2: 批量重命名文件
+csv_folder = '/Users/huangyuqi/Document/GitHub/Quant-Research-Project'  
+files = os.listdir(csv_folder)
+
+for file in files:
+    if file.endswith('_2015_2024.csv'):
+        ticker = file.split('_')[0]
+        
+        # 查找 sector
+        sector = sector_map.get(ticker)
+        if not sector:
+            print(f"⚠️ 无 sector 信息：{ticker}")
+            continue
+        
+        # 生成新文件名
+        new_file_name = f"{sector}_{file}"
+        
+        # 执行重命名
+        src_path = os.path.join(csv_folder, file)
+        dst_path = os.path.join(csv_folder, new_file_name)
+        os.rename(src_path, dst_path)
+        print(f"✅ 重命名：{file} → {new_file_name}")
